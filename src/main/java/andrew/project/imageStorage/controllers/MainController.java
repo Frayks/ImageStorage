@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -50,6 +51,18 @@ public class MainController {
         LOGGER.info(String.format("deleteImage: name=%s", name));
         try {
             mainLib.deleteImage(name);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            LOGGER.debug(e);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+    }
+
+    @GetMapping("/deleteImageList")
+    public ResponseEntity<Void> deleteImageList(@RequestParam List<String> nameList) {
+        LOGGER.info(String.format("deleteImageList: nameList=%s", nameList.toString()));
+        try {
+            mainLib.deleteImageList(nameList);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             LOGGER.debug(e);

@@ -5,6 +5,7 @@ import andrew.project.imageStorage.api.dtos.SaveImageResponseDto;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.List;
 
 public interface MainLib {
 
@@ -14,4 +15,5 @@ public interface MainLib {
 
     void deleteImage(String name) throws FileNotFoundException;
 
+    void deleteImageList(List<String> nameList);
 }

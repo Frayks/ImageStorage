@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 @Component
 public class MainLibImpl implements MainLib {
@@ -47,6 +48,14 @@ public class MainLibImpl implements MainLib {
         File file = Paths.get(storageProperties.getPath(), name).toFile();
         if (!file.delete()) {
             throw new FileNotFoundException(String.format("File not found:%s", name));
+        }
+    }
+
+    @Override
+    public void deleteImageList(List<String> nameList) {
+        for (String name: nameList) {
+            File file = Paths.get(storageProperties.getPath(), name).toFile();
+            file.delete();
         }
     }
 
