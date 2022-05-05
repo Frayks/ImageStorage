@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
 
@@ -23,8 +24,8 @@ public class MainController {
     private MainLib mainLib;
 
     @GetMapping(value = "/getImage", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE})
-    public ResponseEntity<byte[]> getImage(@RequestParam() String name) {
-        LOGGER.info(String.format("getImage: name=%s", name));
+    public ResponseEntity<byte[]> getImage(HttpServletRequest request, @RequestParam() String name) {
+        LOGGER.debug(String.format("%s -> getImage: name=%s", request.getRemoteAddr(), name));
         try {
             byte[] imageBytes = mainLib.getImage(name);
             return ResponseEntity.ok(imageBytes);
@@ -35,8 +36,8 @@ public class MainController {
     }
 
     @PostMapping("/saveImage")
-    public ResponseEntity<SaveImageResponseDto> saveImage(@RequestBody SaveImageRequestDto requestDto) {
-        LOGGER.info("saveImage:");
+    public ResponseEntity<SaveImageResponseDto> saveImage(HttpServletRequest request, @RequestBody SaveImageRequestDto requestDto) {
+        LOGGER.debug(String.format("%s -> saveImage: type=%s", request.getRemoteAddr(), requestDto.getType()));
         try {
             SaveImageResponseDto responseDto = mainLib.saveImage(requestDto);
             return ResponseEntity.ok(responseDto);
@@ -47,8 +48,8 @@ public class MainController {
     }
 
     @GetMapping("/deleteImage")
-    public ResponseEntity<Void> deleteImage(@RequestParam String name) {
-        LOGGER.info(String.format("deleteImage: name=%s", name));
+    public ResponseEntity<Void> deleteImage(HttpServletRequest request, @RequestParam String name) {
+        LOGGER.debug(String.format("%s -> deleteImage: name=%s", request.getRemoteAddr(), name));
         try {
             mainLib.deleteImage(name);
             return ResponseEntity.ok().build();
@@ -59,8 +60,8 @@ public class MainController {
     }
 
     @GetMapping("/deleteImageList")
-    public ResponseEntity<Void> deleteImageList(@RequestParam List<String> nameList) {
-        LOGGER.info(String.format("deleteImageList: nameList=%s", nameList.toString()));
+    public ResponseEntity<Void> deleteImageList(HttpServletRequest request, @RequestParam List<String> nameList) {
+        LOGGER.debug(String.format("%s -> deleteImageList: nameList=%s", request.getRemoteAddr(), nameList.toString()));
         try {
             mainLib.deleteImageList(nameList);
             return ResponseEntity.ok().build();
