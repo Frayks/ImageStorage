@@ -5,6 +5,9 @@ import andrew.project.imageStorage.api.dtos.SaveImageResponseDto;
 import andrew.project.imageStorage.api.libraries.MainLib;
 import andrew.project.imageStorage.api.properties.StorageProperties;
 import andrew.project.imageStorage.api.utils.GeneratorUtil;
+import andrew.project.imageStorage.controllers.MainController;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -19,44 +22,69 @@ import java.util.List;
 @Component
 public class MainLibImpl implements MainLib {
 
+    private static final Logger LOGGER = LogManager.getLogger(MainLibImpl.class);
+
     private static final int FILENAMES_LENGTH = 64;
 
     private StorageProperties storageProperties;
 
     @Override
-    public byte[] getImage(String name) throws IOException {
-        String fileName = Paths.get(name).getFileName().toString();
-        Path filePath = Paths.get(storageProperties.getPath(), fileName);
-        if (!filePath.toFile().exists()) {
-            throw new FileNotFoundException(String.format("File not found:%s", name));
+    public byte[] getImage(String name) {
+        try {
+            String fileName = Paths.get(name).getFileName().toString();
+            Path filePath = Paths.get(storageProperties.getPath(), fileName);
+            if (!filePath.toFile().exists()) {
+                throw new FileNotFoundException(String.format("File not found:%s", name));
+            }
+            return Files.readAllBytes(filePath);
+        } catch (Exception e) {
+            LOGGER.error(e);
         }
-        return Files.readAllBytes(filePath);
+        return null;
     }
 
     @Override
-    public SaveImageResponseDto saveImage(SaveImageRequestDto requestDto) throws IOException {
-        String fileName = GeneratorUtil.genRandStr(FILENAMES_LENGTH) + "." + requestDto.getType();
-        Path filePath = Paths.get(storageProperties.getPath(), fileName);
-        Files.write(filePath, requestDto.getBytes());
-        SaveImageResponseDto responseDto = new SaveImageResponseDto();
-        responseDto.setName(fileName);
-        return responseDto;
-    }
-
-    @Override
-    public void deleteImage(String name) throws FileNotFoundException {
-        File file = Paths.get(storageProperties.getPath(), name).toFile();
-        if (!file.delete()) {
-            throw new FileNotFoundException(String.format("File not found:%s", name));
+    public SaveImageResponseDto saveImage(SaveImageRequestDto requestDto) {
+        try {
+            String fileName = GeneratorUtil.genRandStr(FILENAMES_LENGTH) + "." + requestDto.getType();
+            Path filePath = Paths.get(storageProperties.getPath(), fileName);
+            Files.write(filePath, requestDto.getBytes());
+            SaveImageResponseDto responseDto = new SaveImageResponseDto();
+            responseDto.setName(fileName);
+            return responseDto;
+        } catch (Exception e) {
+            LOGGER.error(e);
         }
+        return null;
     }
 
     @Override
-    public void deleteImageList(List<String> nameList) {
-        for (String name: nameList) {
+    public boolean deleteImage(String name) {
+        try {
             File file = Paths.get(storageProperties.getPath(), name).toFile();
-            file.delete();
+            if (!file.delete()) {
+                throw new FileNotFoundException(String.format("File not found:%s", name));
+            }
+            return true;
+        } catch (Exception e) {
+            LOGGER.error(e);
         }
+        return false;
+    }
+
+    @Override
+    public boolean deleteImageList(List<String> nameList) {
+        boolean allDeleted = true;
+        for (String name : nameList) {
+            try {
+                File file = Paths.get(storageProperties.getPath(), name).toFile();
+                file.delete();
+            } catch (Exception e) {
+                LOGGER.error(e);
+                allDeleted = false;
+            }
+        }
+        return allDeleted;
     }
 
     @Autowired

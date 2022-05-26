@@ -26,35 +26,32 @@ public class MainController {
     @GetMapping(value = "/getImage", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE})
     public ResponseEntity<byte[]> getImage(HttpServletRequest request, @RequestParam() String name) {
         LOGGER.debug(String.format("%s -> getImage: name=%s", request.getRemoteAddr(), name));
-        try {
-            byte[] imageBytes = mainLib.getImage(name);
-            return ResponseEntity.ok(imageBytes);
-        } catch (IOException e) {
-            LOGGER.debug(e);
+        byte[] imageBytes = mainLib.getImage(name);
+        if (imageBytes == null) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } else {
+            return ResponseEntity.ok(imageBytes);
         }
     }
 
     @PostMapping("/saveImage")
     public ResponseEntity<SaveImageResponseDto> saveImage(HttpServletRequest request, @RequestBody SaveImageRequestDto requestDto) {
         LOGGER.debug(String.format("%s -> saveImage: type=%s", request.getRemoteAddr(), requestDto.getType()));
-        try {
-            SaveImageResponseDto responseDto = mainLib.saveImage(requestDto);
-            return ResponseEntity.ok(responseDto);
-        } catch (Exception e) {
-            LOGGER.debug(e);
+        SaveImageResponseDto responseDto = mainLib.saveImage(requestDto);
+        if (responseDto == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        } else {
+            return ResponseEntity.ok(responseDto);
         }
     }
 
     @GetMapping("/deleteImage")
     public ResponseEntity<Void> deleteImage(HttpServletRequest request, @RequestParam String name) {
         LOGGER.debug(String.format("%s -> deleteImage: name=%s", request.getRemoteAddr(), name));
-        try {
-            mainLib.deleteImage(name);
+        boolean deleted = mainLib.deleteImage(name);
+        if (deleted) {
             return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            LOGGER.debug(e);
+        } else {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
     }
@@ -62,11 +59,10 @@ public class MainController {
     @GetMapping("/deleteImageList")
     public ResponseEntity<Void> deleteImageList(HttpServletRequest request, @RequestParam List<String> nameList) {
         LOGGER.debug(String.format("%s -> deleteImageList: nameList=%s", request.getRemoteAddr(), nameList.toString()));
-        try {
-            mainLib.deleteImageList(nameList);
+        boolean allDeleted = mainLib.deleteImageList(nameList);
+        if (allDeleted) {
             return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            LOGGER.debug(e);
+        } else {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
     }

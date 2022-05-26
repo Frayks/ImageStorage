@@ -9,11 +9,11 @@ import java.util.List;
 
 public interface MainLib {
 
-    byte[] getImage(String name) throws IOException;
+    byte[] getImage(String name);
 
-    SaveImageResponseDto saveImage(SaveImageRequestDto request) throws IOException;
+    SaveImageResponseDto saveImage(SaveImageRequestDto request);
 
-    void deleteImage(String name) throws FileNotFoundException;
+    boolean deleteImage(String name);
 
-    void deleteImageList(List<String> nameList);
+    boolean deleteImageList(List<String> nameList);
 }
